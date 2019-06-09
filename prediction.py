@@ -15,7 +15,7 @@ PREDICT_NUM = 10
 PAST_FOR_PREDICT = 60
 
 
-def draw_graph(new_data, closing_price, num_training):
+def draw_graph(stock_code, new_data, closing_price, num_training):
     plt.figure(figsize=(12, 6))
 
     train = new_data[:num_training]
@@ -28,8 +28,10 @@ def draw_graph(new_data, closing_price, num_training):
     plt.plot(valid[['Close', 'Predictions']])
     plt.xlabel('Date', fontsize=18)
     plt.ylabel('Price', fontsize=18)
-    plt.show()
-    # plt.savefig('data/prediction.png')
+    #plt.show()
+    filename = scrapping.get_data_filename(stock_code)
+    filename = filename+'.png'
+    plt.savefig(filename)
 
 
 def prediction(company_name):
@@ -101,7 +103,7 @@ def prediction(company_name):
 
     print('[INFO] rms: {}'.format(rms))
 
-    draw_graph(new_data, closing_price, num_training)
+    draw_graph(stock_code, new_data, closing_price, num_training)
 
 # test
 scrapping.generate_report('삼성화재')
