@@ -5,6 +5,9 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
 import matplotlib.pyplot as plt
 import tensorflow as tf
+from scrapping import Scrapping
+
+scrapping = Scrapping()
 
 SAVED_CSV_FILE = 'data/price.csv'
 TRAIN_NUM = 200
@@ -29,10 +32,15 @@ def draw_graph(new_data, closing_price, num_training):
     # plt.savefig('data/prediction.png')
 
 
-def prediction(num_training=TRAIN_NUM, past_num=PAST_FOR_PREDICT,
-                predict_num=PREDICT_NUM):
+def prediction(company_name):
+    ## change num_training, past_num, predict_num depending on sampled num of data
+    num_training=TRAIN_NUM
+    past_num=PAST_FOR_PREDICT
+    predict_num=PREDICT_NUM
 
-    df = pd.read_csv(SAVED_CSV_FILE, na_values=["", " ", "-"])
+    stock_code = scrapping.find_stock_index(company_name)
+    filename = scrapping.get_data_filename(stock_code)
+    df = pd.read_csv(filename, na_values=["", " ", "-"])
 
     # creating dataframe
     data = df.sort_index(ascending=True, axis=0)
@@ -96,4 +104,5 @@ def prediction(num_training=TRAIN_NUM, past_num=PAST_FOR_PREDICT,
     draw_graph(new_data, closing_price, num_training)
 
 # test
-prediction()
+scrapping.generate_report('삼성화재')
+prediction('삼성화재')
