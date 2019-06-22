@@ -11,6 +11,7 @@ import re
 
 SAVED_CSV_FILE = 'data/price.csv'
 STOCK_LIST_FILE = 'data/stock_list.csv'
+NUM_DATA = 1000
 
 class Scrapping:
     def __init__(self):
@@ -62,7 +63,6 @@ class Scrapping:
         filename = self.get_data_filename(code)
         df_price.to_csv(filename,index=False)
         print('[INFO] Saved file as {}'.format(filename))
-        return df_price
 
 
     def show_graph(self, filename=SAVED_CSV_FILE):
@@ -118,7 +118,7 @@ class Scrapping:
     def generate_report(self, company_name):
         stock_code = self.find_stock_index(company_name)
         filename = self.get_data_filename(stock_code)
-        self.stock_price_pages_to_df(stock_code, 1000)
+        self.stock_price_pages_to_df(stock_code, NUM_DATA)
         #show_graph(filename)
 
 

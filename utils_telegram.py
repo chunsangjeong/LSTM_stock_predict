@@ -5,7 +5,6 @@ import sys
 import telegram
 import datetime
 
-
 def open_configs(filename='config.json'):
     with open(filename) as json_file:
         configs = json.load(json_file)
