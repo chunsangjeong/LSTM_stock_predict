@@ -107,6 +107,6 @@ class Prediction:
         self.draw_graph(stock_code, new_data, closing_price, num_training)
 
 # test
-scrapping.generate_report('삼성화재')
+scrapping.generate_report('삼성화재', 1000)
 test = Prediction()
 test.prediction('삼성화재')

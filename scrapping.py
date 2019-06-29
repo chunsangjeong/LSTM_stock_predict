@@ -6,12 +6,10 @@ import urllib.request
 import json
 import os
 import numpy as np
-import tensorflow as tf
 import re
 
 SAVED_CSV_FILE = 'data/price.csv'
 STOCK_LIST_FILE = 'data/stock_list.csv'
-NUM_DATA = 1000
 
 class Scrapping:
     def __init__(self):
@@ -19,7 +17,7 @@ class Scrapping:
 
     def read_stock_price_page(self, stock_code, page_num):
         '''
-        네이버 주식시세 페이지에 접속하여 table을 dataframe으로 가져와서 정리
+        Gets table as dataFrame from Naver stock page
         '''
         target_url = ('http://finance.naver.com/item/sise_day.nhn?code='+ stock_code + '&page=' + str(page_num))
         #print('[INFO] target url: {}'.format(target_url))
@@ -34,7 +32,7 @@ class Scrapping:
         return price_data
 
 
-    def stock_price_pages_to_df(self, code, days_limit=500):
+    def stock_price_pages_to_df(self, code, days_limit):
         '''
         Pull and add from today to the number of days_limit.
         '''
@@ -66,6 +64,7 @@ class Scrapping:
 
 
     def show_graph(self, filename=SAVED_CSV_FILE):
+        print("Drawing with {}".format(filename))
         try:
             df = pd.read_csv(filename, na_values=["", " ", "-"])
             df = df.reset_index()
@@ -80,8 +79,10 @@ class Scrapping:
         plt.xticks(range(0,df.shape[0],30),df['Date'].loc[::30],rotation=45)
         plt.xlabel('Date',fontsize=18)
         plt.ylabel('Mid Price',fontsize=18)
-        plt.show()
-
+        # plt.show()
+        filename = filename +'_scrapping.png'
+        print("saving image as {}".format(filename))
+        plt.savefig(filename)
 
     def find_stock_index(self, company_name):
         try:
@@ -115,17 +116,14 @@ class Scrapping:
         return filename
 
 
-    def generate_report(self, company_name):
+    def generate_report(self, company_name, num_data):
         stock_code = self.find_stock_index(company_name)
         filename = self.get_data_filename(stock_code)
-        self.stock_price_pages_to_df(stock_code, NUM_DATA)
-        #show_graph(filename)
+        self.stock_price_pages_to_df(stock_code, num_data)
+        self.show_graph(filename)
 
-
-# Test to get & dave data
-'''
-stock_code = '005380'
-days_limit = 500
-df = stock_price_pages_to_df(stock_code, days_limit)
-print(df)
-'''
+if __name__ == "__main__":
+    scrapping = Scrapping()
+    stock_code = '005380'
+    days_limit = 2000
+    scrapping.generate_report("삼성전기", days_limit)

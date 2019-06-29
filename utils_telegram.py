@@ -5,54 +5,62 @@ import sys
 import telegram
 import datetime
 
-def open_configs(filename='config.json'):
-    with open(filename) as json_file:
-        configs = json.load(json_file)
-        token = configs["user"]["token"]
-        chatid = configs["user"]["chatid"]
-        return token, chatid
+class TeleBot:
+
+    def __init__(self):
+        self.bot_token, self.bot_chatid = self._open_configs()
+        
+        if (self.bot_token, self.bot_chatid):
+            print("bot token: {}, bot chatid: {}".format(self.bot_token, self.bot_chatid))
+            print("Telegram bot's connected")
+        else:
+            print("Telegram bot connection failed")
+            return False
+
+    def _open_configs(self, filename='config.json'):
+        with open(filename) as json_file:
+            configs = json.load(json_file)
+            token = configs["user"]["telegram"]["token"]
+            chatid = configs["user"]["telegram"]["chatid"]
+            return token, chatid
+
+    def telegram_bot_sendtext(self, bot_message):
+        bot = telegram.Bot(token=self.bot_token)
+
+        # print("token: " + bot_token + "  chatid: " + bot_chatid)
+        bot.send_message(chat_id=self.bot_chatid, text=bot_message)
 
 
-def telegram_bot_sendtext(bot_message):
-    bot_token, bot_chatid = open_configs()
-    bot = telegram.Bot(token=bot_token)
+    def telegram_send_image(self, imageFile='data/prediction.png'):
 
-    # print("token: " + bot_token + "  chatid: " + bot_chatid)
-    bot.send_message(chat_id=bot_chatid, text=bot_message)
+        bot = telegram.Bot(token=self.bot_token)
+        print(">> sending image -> {}".format(imageFile))
+        bot.send_photo(chat_id=self.bot_chatid, photo=open(imageFile, 'rb'))
 
+    def generate_report(self):
+        today = datetime.date.today()
+        # test message combination
+        stock_name = "삼성전자"
+        stock_price = "1,000,000"
+        message = "{:%d %b %Y} \n {} : {}".format(today, stock_name, stock_price)
 
-def telegram_send_image(imageFile='data/prediction.png'):
-    bot_token, bot_chatid = open_configs()
-    bot = telegram.Bot(token=bot_token)
+        print(">> sending message\n---\n {} \n---\n".format(message))
+        return message
 
-    bot.send_photo(chat_id=bot_chatid, photo=open(imageFile, 'rb'))
+    def send_report(self):
+        message = self.generate_report()
 
-
-def generate_report():
-    today = datetime.date.today()
-    # test message combination
-    stock_name = "삼성전자"
-    stock_price = "1,000,000"
-    message = "{:%d %b %Y} \n {} : {}".format(today, stock_name, stock_price)
-    return message
-
-
-def send_report():
-    message = generate_report()
-
-    telegram_bot_sendtext(message)
-    telegram_send_image()
+        self.telegram_bot_sendtext(message)
+        self.telegram_send_image()
 
 
-def test():
-    send_report()
+    def kick_regular_report(self):
+        schedule.every().day.at("9:00").do(self.send_report)
 
-test()
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
 
-'''
-schedule.every().day.at("9:00").do(report)
-
-while True:
-    schedule.run_pending()
-    time.sleep(1)
-'''
+if __name__ == "__main__":
+    instTele = TeleBot()
+    instTele.send_report()
